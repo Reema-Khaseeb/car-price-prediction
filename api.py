@@ -1,18 +1,20 @@
+# Standard library imports
 from http import HTTPStatus
 from typing import Dict
 import pickle
-from fastapi import FastAPI, Request
-from sklearn.preprocessing import PolynomialFeatures
+
+# Third-party library imports
 import numpy as np
-import uvicorn
+import pandas as pd
 import requests
+import uvicorn
+from fastapi import FastAPI, Request
 
-# from src.data_handler import Sample
+# Local application/library-specific imports
+from src.data_handler import Sample, rename_columns_dict
 
 
-models = pickle.load(open('./pkls/models1.pkl', 'rb'))
-best_model = models['ols']['model']
-
+model_pipeline = pickle.load(open('./pkls/gbr_model_pipeline.pkl', 'rb'))
 
 # Define application
 app = FastAPI()
@@ -30,16 +32,12 @@ def _health_check() -> Dict:
 
 
 @app.post("/predict/")
-async def _predicted_price(reqest: Sample) -> Dict:
-    data = await reqest.json()
-    values = np.array(list(data.values()))
-    predict = best_model.predict(values.reshape(1, len(values)))[0]
-    # print('\n\n',predict, '\n\n')
-    print('\n\n', values.reshape(1, len(values)), '\n\n')
+def _predicted_price(sample: Sample) -> Dict:
+    sample = [vars(sample)]
+    sample_dataframe = pd.DataFrame(sample) 
+    # sample_dataframe.rename(columns = rename_columns_dict, inplace=True)
+    predection = model_pipeline.predict(sample_dataframe)[0]
     response = {
-        "message": HTTPStatus.OK.phrase,
-        "status-code": HTTPStatus.OK,
-        "values": f"{values}",
-        'pred': f"{predict}"
+        'Car Price prediction': predection
     }
     return response
