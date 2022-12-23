@@ -1,2 +1,5 @@
-data/
 __pycache__/
+
+# ignore all .txt files in a (data_files) directory, except for (valid_files.txt)
+/data_files/*.txt
+!/data_files/valid_files.txt
