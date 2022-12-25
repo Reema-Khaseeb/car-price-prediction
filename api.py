@@ -6,19 +6,26 @@ import pickle
 # Third-party library imports
 import numpy as np
 import pandas as pd
-import requests
 import uvicorn
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 # Local application/library-specific imports
 from src.data_handler import Sample, rename_columns_dict
 
 
-model_pipeline = pickle.load(open('./pkls/gbr_model_pipeline.pkl', 'rb'))
+
+gbr_model_hp_pipeline = pickle.load(open('./pkls/best_model_gbr_random_search.pkl', 'rb'))
+
+
 
 # Define application
 app = FastAPI()
 
+# templates = Jinja2Templates(directory="templates")
+
+# app.mount("./Front-End/static", StaticFiles(directory="/Front-End/static"), name="static")
 
 # Check the connection is OK by initial path
 @app.get("/")
@@ -30,14 +37,20 @@ def _health_check() -> Dict:
     }
     return response
 
+# @app.get('/render_template')
+# def render_template(request: Request):
+#     return templates.TemplateResponse("predict-car-price.html", {
+#     "request": request,
+#     })
+
 
 @app.post("/predict/")
 def _predicted_price(sample: Sample) -> Dict:
     sample = [vars(sample)]
     sample_dataframe = pd.DataFrame(sample) 
     # sample_dataframe.rename(columns = rename_columns_dict, inplace=True)
-    predection = model_pipeline.predict(sample_dataframe)[0]
+    predection = gbr_model_hp_pipeline.predict(sample_dataframe)[0]
     response = {
-        'Car Price prediction': predection
+        'prediction': predection
     }
     return response
