@@ -1,0 +1,6 @@
+__pycache__/
+.ipynb_checkpoints/
+
+# ignore all .txt files in a (data_files) directory, except for (valid_files.txt)
+/data_files/*.txt
+!/data_files/valid_files.txt
