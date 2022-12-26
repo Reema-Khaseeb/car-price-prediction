@@ -6,15 +6,14 @@ import pickle
 # Third-party library imports
 import numpy as np
 import pandas as pd
-import requests
 import uvicorn
 from fastapi import FastAPI, Request
 
 # Local application/library-specific imports
-from src.data_handler import Sample, rename_columns_dict
+from src.data_handler import Sample
 
 
-model_pipeline = pickle.load(open('./pkls/gbr_model_pipeline.pkl', 'rb'))
+model_pipeline = pickle.load(open('./pkls/best_model_gbt_random_search.pkl', 'rb'))
 
 # Define application
 app = FastAPI()
@@ -30,14 +29,13 @@ def _health_check() -> Dict:
     }
     return response
 
-
 @app.post("/predict/")
 def _predicted_price(sample: Sample) -> Dict:
     sample = [vars(sample)]
-    sample_dataframe = pd.DataFrame(sample) 
+    sample_dataframe = pd.DataFrame(sample)
     # sample_dataframe.rename(columns = rename_columns_dict, inplace=True)
     predection = model_pipeline.predict(sample_dataframe)[0]
     response = {
-        'Car Price prediction': predection
+        'prediction': predection
     }
     return response
