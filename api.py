@@ -4,10 +4,8 @@ from typing import Dict
 import pickle
 
 # Third-party library imports
-import numpy as np
 import pandas as pd
-import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 
 # Local application/library-specific imports
 from src.data_handler import Sample
@@ -33,7 +31,6 @@ def _health_check() -> Dict:
 def _predicted_price(sample: Sample) -> Dict:
     sample = [vars(sample)]
     sample_dataframe = pd.DataFrame(sample)
-    # sample_dataframe.rename(columns = rename_columns_dict, inplace=True)
     predection = model_pipeline.predict(sample_dataframe)[0]
     response = {
         'prediction': predection
